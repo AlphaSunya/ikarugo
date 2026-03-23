@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>
+* { margin:0; padding:0; }
+html,body { background:transparent; overflow:hidden; }
+canvas { position:absolute; top:0; left:0; }
+</style>
+</head><body>
+<canvas id="c"></canvas>
+<script>
+const { ipcRenderer } = require('electron');
+const c = document.getElementById('c');
+const cx = c.getContext('2d');
+c.width  = window.screen.width;
+c.height = window.screen.height;
+c.style.width  = c.width  + 'px';
+c.style.height = c.height + 'px';
+
+const ROCK='#888880',ROCK2='#666660',ROCK3='#aaaaaa';
+
+let parts = [];
+
+function addDrops(sx, sy) {
+  for (let i=0;i<8;i++)
+    parts.push({type:'water', x:sx, y:sy,
+      vx:2+Math.random()*4, vy:-1+Math.random()*2,
+      life:1, r:2.5+Math.random()*3});
+}
+function addInk(sx, sy) {
+  for (let i=0;i<22;i++){
+    const a=Math.random()*Math.PI*2, sp=1+Math.random()*6;
+    parts.push({type:'ink', x:sx, y:sy,
+      vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-2,
+      life:1, r:4+Math.random()*7});
+  }
+}
+function addPopInk(sx, sy) {
+  for (let i=0;i<12;i++){
+    const a=Math.random()*Math.PI*2, sp=0.5+Math.random()*3;
+    parts.push({type:'ink', x:sx, y:sy,
+      vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-1,
+      life:0.7, r:2+Math.random()*4});
+  }
+}
+
+// rock state
+let rockState = null; // {petX, petY, subT}
+
+ipcRenderer.on('fx-cmd', (_, cmd) => {
+  if (cmd.type === 'drops')    addDrops(cmd.x, cmd.y);
+  if (cmd.type === 'ink')      addInk(cmd.x, cmd.y);
+  if (cmd.type === 'popInk')   addPopInk(cmd.x, cmd.y);
+  if (cmd.type === 'rocks')    rockState = {petX:cmd.petX, petY:cmd.petY, subT:cmd.subT};
+  if (cmd.type === 'clearRocks') rockState = null;
+});
+
+function drawRocks(petX, petY, subT) {
+  const placed = Math.min(3, Math.floor(subT/60));
+  const groundY = petY + 68;
+  const baseX   = petX + 88;
+  const defs = [{w:14,h:8},{w:11,h:7},{w:9,h:5}];
+  const cols = [[ROCK,ROCK2],[ROCK2,ROCK3],[ROCK3,ROCK]];
+  let sh=0;
+  for (let i=0;i<placed;i++) {
+    const d=defs[i],[c1,c2]=cols[i];
+    const ry=groundY-sh-d.h;
+    cx.fillStyle=c1; cx.fillRect(baseX,ry,d.w,d.h);
+    cx.fillStyle=c2; cx.fillRect(baseX,ry,d.w,2);
+    cx.fillStyle='rgba(0,0,0,0.25)'; cx.fillRect(baseX,ry+d.h-2,d.w,2);
+    sh+=d.h;
+  }
+  if (placed<3) {
+    const d=defs[placed],[c1,c2]=cols[placed];
+    const bob=Math.round(Math.sin(subT/10)*2);
+    cx.fillStyle=c1; cx.fillRect(petX+24, petY-2+bob, d.w, d.h);
+    cx.fillStyle=c2; cx.fillRect(petX+24, petY-2+bob, d.w, 2);
+  }
+}
+
+function tick() {
+  requestAnimationFrame(tick);
+  cx.clearRect(0,0,c.width,c.height);
+
+  // draw rocks
+  if (rockState) {
+    rockState.subT++;
+    drawRocks(rockState.petX, rockState.petY, rockState.subT);
+  }
+
+  // update & draw particles
+  parts = parts.filter(d => d.life > 0);
+  parts.forEach(d => {
+    d.x+=d.vx; d.y+=d.vy; d.life-=d.type==='ink'?0.018:0.035;
+    if (d.type==='water') {
+      d.vy+=0.15;
+      cx.beginPath();
+      cx.ellipse(d.x,d.y,d.r*1.5,d.r,0,0,Math.PI*2);
+      cx.fillStyle=`rgba(136,204,255,${(d.life*0.8).toFixed(2)})`;
+      cx.fill();
+    } else {
+      d.r=Math.max(0.1,d.r*0.98);
+      cx.beginPath();
+      cx.arc(d.x,d.y,d.r,0,Math.PI*2);
+      cx.fillStyle=`rgba(80,20,120,${(d.life*0.65).toFixed(2)})`;
+      cx.fill();
+    }
+  });
+}
+requestAnimationFrame(tick);
+</script>
+</body></html>

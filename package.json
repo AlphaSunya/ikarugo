@@ -1,0 +1,35 @@
+{
+  "name": "ikarugo",
+  "version": "1.0.0",
+  "author": "River & Claude",
+  "description": "Ikarugo \u2014 a pixel octopus desktop pet \ud83d\udc19",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win --x64",
+    "build-mac": "electron-builder --mac"
+  },
+  "build": {
+    "appId": "com.ikarugo.pet",
+    "productName": "ikarugo",
+    "win": {
+      "target": "portable",
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns"
+    },
+    "files": [
+      "main.js",
+      "renderer.js",
+      "index.html",
+      "fx.html",
+      "assets/**"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^29.0.0",
+    "electron-builder": "^24.0.0"
+  }
+}
