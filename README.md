@@ -1,6 +1,6 @@
 # Ikarugo 🐙
 
-A pixel octopus desktop pet for Windows. Made by River & Claude.
+A pixel octopus desktop pet for Windows. Made by River & Claude & Codex.
 
 灵感来源：《全职猎人》里的伊加路哥，奇犽的好伙伴。
 
@@ -32,7 +32,7 @@ npm start
 npm run build
 ```
 
-打包好的 `Ikarugo 1.0.0.exe` 会出现在 `dist/` 目录下，直接运行即可，不需要安装。
+打包好的 `Ikarugo 2.0.0.exe` 会出现在 `dist/` 目录下，直接运行即可，不需要安装。
 
 ## Features
 
