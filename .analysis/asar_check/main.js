@@ -75,7 +75,7 @@ app.whenReady().then(()=>{
     width,height,x:0,y:0,
     transparent:true,frame:false,alwaysOnTop:true,skipTaskbar:true,
     resizable:false,hasShadow:false,focusable:false,
-    webPreferences:{nodeIntegration:true,contextIsolation:false,backgroundThrottling:false},
+    webPreferences:{nodeIntegration:true,contextIsolation:false},
   });
   fxWin.loadFile('fx.html');
   fxWin.showInactive();
@@ -88,7 +88,7 @@ app.whenReady().then(()=>{
     y:Math.floor(height-160),
     transparent:true,frame:false,alwaysOnTop:true,skipTaskbar:true,
     resizable:false,hasShadow:false,focusable:false,
-    webPreferences:{nodeIntegration:true,contextIsolation:false,backgroundThrottling:false},
+    webPreferences:{nodeIntegration:true,contextIsolation:false},
   });
   win.loadFile('index.html');
   win.showInactive();

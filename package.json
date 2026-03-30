@@ -1,7 +1,7 @@
 {
   "name": "ikarugo",
-  "version": "1.0.0",
-  "author": "River & Claude",
+  "version": "2.0.0",
+  "author": "River & Claude & Codex",
   "description": "Ikarugo \u2014 a pixel octopus desktop pet \ud83d\udc19",
   "main": "main.js",
   "scripts": {

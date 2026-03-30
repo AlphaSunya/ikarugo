@@ -90,14 +90,17 @@ function normalizeCoord(v) {
 }
 
 function getDragMotion(f) {
-  // web version: arms f/8 (fast flail), feet f/15 (slower sway) - independent phases
-  const flail = Math.sin(f / 4);       // fast, arms
-  const sway  = Math.sin(f / 6);      // slower, feet
+  const stride = Math.sin(f / 4.7);
+  const drift = Math.sin(f / 10.3 + Math.PI / 5) * 0.35;
+  const swing = stride * 0.85 + drift;
+  const armWave = Math.sin(f / 4.7 + Math.PI / 2) + Math.sin(f / 10.3 + Math.PI / 3) * 0.2;
+  const footShift = swing > 0.45 ? 1 : (swing < -0.45 ? -1 : 0);
+  const leftArmLift = armWave > 0.18 ? 1 : 0;
   return {
-    footShift:    Math.round(sway * 1),
-    footWidth:    3,
-    leftArmFloat:  flail,   // +sin
-    rightArmFloat: -flail,  // -sin = opposite = natural flailing
+    footShift,
+    footWidth: Math.abs(swing) > 0.62 ? 3 : 2,
+    leftArmLift,
+    rightArmLift: leftArmLift ? 0 : 1
   };
 }
 
@@ -395,13 +398,9 @@ function drawPet(f, ex, ey, currentState, currentHangMode, dragging, subT) {
 
   if (dragging) {
     const drag = getDragMotion(f);
-    // arms wave naturally up and down opposite each other
-    const lOff = Math.round(drag.leftArmFloat);
-    const rOff = Math.round(drag.rightArmFloat);
-    r(0, 9 + lOff, 3, 2, RED);
-    r(17, 9 + rOff, 3, 2, RED);
-    // sparkle effect while grabbed
-    if (f % 30 < 18) {
+    r(0, 9 + drag.leftArmLift, 3, 2, RED);
+    r(17, 9 + drag.rightArmLift, 3, 2, RED);
+    if (f % 18 < 11) {
       p(17, 5, '#aaddff');
       p(17, 6, '#aaddff');
       p(16, 6, '#aaddff');
